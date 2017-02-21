@@ -1,4 +1,4 @@
-# ooi_realtime_plotting
+# OOI Realtime Plotting
 This toolbox contains scripts to set up a real time display of OOI data.
 
 
