@@ -2,11 +2,7 @@
 
 import datetime
 import warnings
-
 import matplotlib
-
-matplotlib.use('tkAgg')
-
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import requests
