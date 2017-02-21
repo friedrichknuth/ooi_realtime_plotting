@@ -35,7 +35,7 @@ def extract_keys(data, keys, min_time):
             continue
         for key in keys:
             rdict[key].append(record[key])
-    print 'Found %d data points after filtering' % len(rdict['time'])
+    # print 'Found %d data points after filtering' % len(rdict['time'])
     return rdict
 
 
