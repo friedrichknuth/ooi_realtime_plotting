@@ -20,7 +20,7 @@ unix_epoch = datetime.datetime(1970, 1, 1)
 ntp_ordinal = ntp_epoch.toordinal()
 ntp_delta = (unix_epoch - ntp_epoch).total_seconds()
 
-max_points = 100
+max_points = 10000
 
 def create_output_dir(new_dir):
     # Check if dir exists.. if it doesn't... create it.
