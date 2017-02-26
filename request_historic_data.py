@@ -24,7 +24,7 @@ minute = 8
 second = 0
 
 # set to true if you want to write data to a csv file in csv_output folder.
-output_csv = True 
+output_csv = False 
 
 
 

@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+import os
 import datetime
 import warnings
 import csv
@@ -20,6 +21,17 @@ ntp_ordinal = ntp_epoch.toordinal()
 ntp_delta = (unix_epoch - ntp_epoch).total_seconds()
 
 max_points = 100
+
+def create_output_dir(new_dir):
+    # Check if dir exists.. if it doesn't... create it.
+    if not os.path.isdir(new_dir):
+        try:
+            os.makedirs(new_dir)
+        except OSError:
+            if os.path.exists(new_dir):
+                pass
+            else:
+                raise
 
 def prune_data(n, max_points=max_points, write_csv = False):
     # print a warning if csv file begins to exceed msx_points
@@ -68,6 +80,7 @@ def requestHistoric(username, token, sub_site, platform, instrument, delivery_me
     time = []
 
     if write_csv == True:
+        create_output_dir('csv_output')
         output = {}
         output_filename = './csv_output/' + parameter + '_' + begin_time.strftime('%Y-%m-%dT%H%M00') + '.csv'
         with open(output_filename, 'wb') as f:
@@ -176,6 +189,7 @@ def requestNow(username, token, sub_site, platform, instrument, delivery_method,
    
 
     if write_csv == True:
+        create_output_dir('csv_output')
         output = {}
         output_filename = './csv_output/' + parameter + '_' + begin_time.strftime('%Y-%m-%dT%H%M00') + '.csv'
         with open(output_filename, 'wb') as f:

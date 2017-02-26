@@ -14,7 +14,7 @@ instrument = '06-CTDBPN106'
 delivery_method = 'streamed'
 stream = 'ctdbp_no_sample'
 parameter = 'ctdbp_no_seawater_pressure'
-output_csv = True # set to true if you want to write data to a csv file in csv_output folder.
+output_csv = False # set to true if you want to write data to a csv file in csv_output folder.
 
 common.requestNow(
 					username,
