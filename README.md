@@ -13,10 +13,10 @@ This toolbox contains scripts to set up a real time display of OOI data.
 
 #Use
 
-Open CE02SHBP.py and modify the inputs
+Open request_current_data.py or request_historic_data.py and modify the inputs
 
 Run the script from a unix shell
 
-    $ python CE02SHBP.py &
+    $ python script.py &
 
 The & will allow you to modify parameters in the script and fire up another plot alongside the existing plot.
