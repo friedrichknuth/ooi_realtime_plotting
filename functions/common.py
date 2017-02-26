@@ -262,7 +262,7 @@ def requestNow(username, token, sub_site, platform, instrument, delivery_method,
         # Add this data to our existing dataset, prune if over our max points
         time.extend((t / (24 * 3600) + ntp_ordinal for t in data['time']))
         yvals.extend(data[parameter])
-        time = prune_data(time)
+        time = prune_data(time, write_csv = write_csv)
         yvals = prune_data(yvals)
 
         # reset our limits and plot the data
