@@ -8,7 +8,7 @@ This toolbox contains scripts to stream onto your local machine and plot in real
 
     > cd ooi_realtime_plotting
 
-    > pip insall -r requirements.txt
+    > pip install -r requirements.txt
 
 
 #Use
