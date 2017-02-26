@@ -8,7 +8,7 @@ This toolbox contains scripts to set up a real time display of OOI data.
 
     > cd ooi_realtime_plotting
 
-    > pip --requirement requirements.txt
+    > pip insall -r requirements.txt
 
 
 #Use
