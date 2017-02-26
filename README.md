@@ -15,7 +15,7 @@ This toolbox contains scripts to set up a real time display of OOI data.
 
 Open request_current_data.py or request_historic_data.py and modify the inputs
 
-Run the script from a unix shell
+Run the script from a linux or unix shell
 
     $ python script.py &
 
