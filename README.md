@@ -27,4 +27,4 @@ or
 
     $ python request_historic_data.py &
     
-The '&' will allow you to modify inputs in the script.py and fire up another plot alongside the existing plot. Terminating the bash shell will kill all processes fired up in the background. In this way, using '&' is not equivalent to nohup.
+The '&' will allow you to modify inputs in the .py file and fire up another plot alongside the existing plot. Terminating the bash shell will kill all processes fired up in the background. (Note: using '&' is not equivalent to nohup in this way)
