@@ -64,6 +64,12 @@ def get_future_data(url, params, username, token):
 
 
 def requestHistoric(username, token, sub_site, platform, instrument, delivery_method, stream, parameter, historic_date, write_csv = False):
+    
+    # TODO add end time as an input that specifies when the routine will end and save a plot
+    # TODO make step forward timedelta a input and set according to expected sampling rate
+    # TODO allow for multi-parameter input
+    # TODO create plotting routines for 2-D datasets, depth profiles etc.
+
     request_url = '/'.join((BASE_URL, sub_site, platform, instrument, delivery_method, stream))
     params = {
         'beginDT': None,
@@ -108,6 +114,8 @@ def requestHistoric(username, token, sub_site, platform, instrument, delivery_me
 
         end_time_str = end_time.strftime('%Y-%m-%dT%H:%M:%S.000Z')
         params['endDT'] = end_time_str
+
+        # TODO parse out data requests as a sepearte function to write data to csv and save a plot
 
         # Send request in thread, polling until complete
         data_future = get_future_data(request_url, params, username, token)
