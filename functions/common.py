@@ -39,7 +39,11 @@ def prune_data(n, max_points=max_points, write_csv = False):
         if len(n) >= max_points:
             print "WARNING - csv file beginning to exceed " + str(max_points) + ' points.'
     
+    # if len(n) >= max_points:
+    #     return n[::1000]
+    
     return n[-max_points:]
+    
 
 
 def extract_keys(data, keys, min_time):
@@ -61,6 +65,18 @@ def get_future_data(url, params, username, token):
     auth = (username, token)
     return pool.submit(requests.get, url, params=params, auth=auth)
 
+# TODO save plots tp output directory if csv option envoked
+# def save_fig(save_dir, file_name, res=300):
+#     """
+#     Save figure to a directory with a resolution of 300 DPI
+#     :param save_dir: Location of the directory to save the file
+#     :param file_name: The name of the file you want to save
+#     :param res: Resolution in DPI of the image you want to save
+#     :return: None
+#     """
+#     save_file = os.path.join(save_dir, file_name)
+#     plt.savefig(str(save_file) + '.png', dpi=res)
+#     plt.close()
 
 
 def requestHistoric(username, token, sub_site, platform, instrument, delivery_method, stream, parameter, historic_date, write_csv = False):
