@@ -7,7 +7,7 @@ username = 'YOUR-API-USERNAME'
 token = 'YOUR-API-PASSWORD'
 
 
-# Specify your inputs. Use https://ooi.visualocean.net/ as a reference.
+# Specify your inputs. Use http://ooi.visualocean.net/ as a reference.
 sub_site = 'CE02SHBP'
 platform = 'LJ01D'
 instrument = '06-CTDBPN106'
