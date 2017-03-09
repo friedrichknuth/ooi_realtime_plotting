@@ -1,5 +1,5 @@
 # OOI Real Time Plotting
-This toolbox contains scripts to stream onto your local machine and plot in real time.
+This toolbox contains scripts to stream data onto your local machine and plot in real time.
 
 
 #Installation
