@@ -72,10 +72,11 @@ def get_future_data(url, params, username, token):
 
 def requestHistoric(username, token, sub_site, platform, instrument, delivery_method, stream, parameter, historic_date, write_csv = False):
     
-    # TODO parse out data requests routine without plotting to send alerts
-    # TODO add end time as an input that specifies when the routine will end and save a plot
-    # TODO make step forward timedelta a input and set according to expected sampling rate
-    # TODO allow for multi-parameter input
+    # TODO make time step forward a parameterized input. Currently hard doced to 3600 seconds (line 174).
+    # TODO parse out data requests routine without plotting to send alerts.
+    # TODO add end time as an input that specifies when the routine will end and save a plot.
+    # TODO make step forward timedelta a input and set according to expected sampling rate.
+    # TODO allow for multi-parameter input.
     # TODO create plotting routines for 2-D datasets, depth profiles etc.
 
     request_url = '/'.join((BASE_URL, sub_site, platform, instrument, delivery_method, stream))
