@@ -39,7 +39,8 @@ def prune_data(n, max_points=max_points, write_csv = False):
         if len(n) >= max_points:
             print "WARNING - csv file beginning to exceed " + str(max_points) + ' points.'
     
-    # if len(n) >= max_points:
+    ## use this to prune data through decimation instead of cropping.
+    # if len(n) >= max_points: 
     #     return n[::1000]
     
     return n[-max_points:]
@@ -68,162 +69,6 @@ def get_future_data(url, params, username, token):
     auth = (username, token)
     return pool.submit(requests.get, url, params=params, auth=auth)
 
-# TODO save plots tp output directory if csv option envoked
-# def save_fig(save_dir, file_name, res=300):
-#     """
-#     Save figure to a directory with a resolution of 300 DPI
-#     :param save_dir: Location of the directory to save the file
-#     :param file_name: The name of the file you want to save
-#     :param res: Resolution in DPI of the image you want to save
-#     :return: None
-#     """
-#     save_file = os.path.join(save_dir, file_name)
-#     plt.savefig(str(save_file) + '.png', dpi=res)
-#     plt.close()
-
-def requestHistoric_xsection(username, token, sub_site, platform, instrument, delivery_method, stream, parameter, historic_date, write_csv = False):
-    
-    # TODO parse out data requests routine without plotting to send alerts
-    # TODO add end time as an input that specifies when the routine will end and save a plot
-    # TODO make step forward timedelta a input and set according to expected sampling rate
-    # TODO allow for multi-parameter input
-    # TODO create plotting routines for 2-D datasets, depth profiles etc.
-
-    request_url = '/'.join((BASE_URL, sub_site, platform, instrument, delivery_method, stream))
-    params = {
-        'beginDT': None,
-        'endDT': None,
-        'limit': 1000,
-        'user': 'realtime',
-    }
-
-    begin_time = datetime.datetime(**historic_date) - datetime.timedelta(seconds=3600)
-    end_time = datetime.datetime(**historic_date)
-
-    last_time = 10
-    yvals = []
-    time = []
-    zvals = []
-
-    if write_csv == True:
-        create_output_dir('csv_output')
-        output = {}
-        output_filename = './csv_output/' + parameter + '_' + begin_time.strftime('%Y-%m-%dT%H%M00') + '.csv'
-        with open(output_filename, 'wb') as f:
-            writer = csv.writer(f)
-            writer.writerow(['time',parameter])
-
-    plt.ion()
-    plt.grid()  # Turn on the plot grid
-    plt.title(sub_site + '-' + platform + '-' + instrument + '-' + stream, y=1.02)
-    plt.ylabel('seawater_pressure')
-    plt.plot(time, yvals, linestyle='None', marker='.')
-    plt.scatter(time, yvals,
-                     s=2,
-                     c=zvals,
-                     edgecolors='face')
-                     # vmin=)
-
-    scat = plt.scatter(time, yvals,
-                     s=2,
-                     c=zvals,
-                     edgecolors='face')
-                     # vmin=)
-
-    df = mdates.DateFormatter('%Y-%m-%dT%H:%M:%S')  # Format the date axis
-    
-    ax = plt.gca()
-    fig = plt.gcf()
-    ax.invert_yaxis()
-    plt.colorbar(scat, ax=ax)
-    # fig.colorbar(ax=ax, label='corrected_dissolved_oxygen' + " (" + 'umol kg-1' + ")")
-    # fig.formatter.set_useOffset(False)
-    # fig.update_ticks()
-
-    ax.get_yaxis().get_major_formatter().set_useOffset(False)
-    ax.xaxis.set_major_formatter(df)
-    fig.autofmt_xdate()
-
-    while True:
-        # Update params for this request
-        begin_time_str = begin_time.strftime('%Y-%m-%dT%H:%M:%S.000Z')
-        params['beginDT'] = begin_time_str
-
-        end_time_str = end_time.strftime('%Y-%m-%dT%H:%M:%S.000Z')
-        params['endDT'] = end_time_str
-
-        # TODO parse out data requests as a seperate function to write data to csv and save a plot
-
-        # Send request in thread, polling until complete
-        data_future = get_future_data(request_url, params, username, token)
-        while not data_future.done:
-            # Request not complete, yield control to event loop
-            plt.pause(.1)
-
-        # Request complete, if not 200, log error and try again
-        response = data_future.result()
-        if response.status_code != 200:
-            print 'Error fetching data', response.text
-            plt.pause(1)
-            continue
-
-        # Data is valid, extract the requested parameters for all data points
-        # not already received.
-        data = response.json()
-        data = extract_keys(data, ['time', 'seawater_pressure', parameter], min_time=last_time)
-        
-
-        # write data to csv
-        if write_csv == True:
-            output.update(data)
-            for key, value in output.iteritems():
-                if key == 'time':
-                    x = [x for x in value]
-                if key == parameter:
-                    y = [y for y in value]
-
-            rows = zip(x,y)
-            with open(output_filename, 'a') as f:
-                writer = csv.writer(f)
-                for row in rows:
-                    writer.writerow(row)
-
-
-        # It's possible to receive a response containing only already plotted data
-        # If so, try again.
-        if not data['time']:
-            plt.pause(1)
-            continue
-
-        # Grab the last time so that we can filter out any previously received data
-        # from the next request. Update begin_time to match.
-        last_time = data['time'][-1]
-        begin_time = ntp_seconds_to_datetime(last_time)
-        end_time = ntp_seconds_to_datetime(last_time) + datetime.timedelta(seconds=3600)
-
-        # Add this data to our existing dataset, prune if over our max points
-        time.extend((t / (24 * 3600) + ntp_ordinal for t in data['time']))
-        yvals.extend(data['seawater_pressure'])
-        time = prune_data(time, write_csv = write_csv)
-        yvals = prune_data(yvals)
-        zvals = prune_data(zvals)
-
-        # reset our limits and plot the data
-        # ax.lines[0].set_xdata(time)
-        # ax.lines[0].set_ydata(yvals)
-        # ax.set_scatter(zvals)
-        ax.scatter(time,yvals,c=zvals,s=2,edgecolors='face')
-        
-        # ax.lines[0].set_data(time, yvals)
-        # ax.lines[0].set_edgecolors(zvals)
-        # ax.lines[0].set_array(zvals)
-        # scat.set_scatter(zvals)
-
-        # ax.relim()
-        ax.autoscale_view()
-
-        # plt.tight_layout()
-        plt.pause(1)
 
 def requestHistoric(username, token, sub_site, platform, instrument, delivery_method, stream, parameter, historic_date, write_csv = False):
     
@@ -278,7 +123,7 @@ def requestHistoric(username, token, sub_site, platform, instrument, delivery_me
         end_time_str = end_time.strftime('%Y-%m-%dT%H:%M:%S.000Z')
         params['endDT'] = end_time_str
 
-        # TODO parse out data requests as a seperate function to write data to csv and save a plot
+        # TODO parse out data requests as a seperate function to write data to csv and save a plot, without interactive plotting.
 
         # Send request in thread, polling until complete
         data_future = get_future_data(request_url, params, username, token)
