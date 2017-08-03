@@ -3,8 +3,8 @@
 from functions import common
 
 # Go to ooinet.oceanobservatories.org, log in and find your username under your user profile.
-username = 'OOIAPI-9N9UMLHV9W5GOP'
-token = 'SJN6HXHH116OZ8'
+username = 'API USERNAME'
+token = 'API TOKEN'
 
 
 # Specify your inputs for the data request. Use http://ooi.visualocean.net as a reference.
