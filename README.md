@@ -1,7 +1,6 @@
 # OOI Real Time Plotting
 This toolbox is written in python 2 and contains scripts to stream data onto your local machine and plot in real time.
 
-
 ## Installation using conda
 
     > git clone git@github.com:ooi-data-review/ooi_realtime_plotting.git
@@ -9,11 +8,19 @@ This toolbox is written in python 2 and contains scripts to stream data onto you
     > cd ooi_realtime_plotting
 
     > conda create -n ooi_realtime_plotting python=2 matplotlib requests futures
+    
+    > source activate ooi_realtime_plotting
 
+## Getting Started
+* Create a user account on [ooinet.oceanobservatories.org](https://www.ooinet.oceanobservatories.org)
+* Log in
+* Navigate to the drop down menu screen in the top-right corner menu
+* Click on the "User Profile" element of the drop down.
+* Copy and save the following data from the user profile: API Username and API Token.  The API Username is similar to “OOIAPI-QTULEV9STCAS55”.  The API Token is similar to “YXP2Q2W4SOP”.
 
-## Use
+## Running the scripts
 
-Activate your new virtual environment called ooi_realtime_plotting
+If not already acitavted during the installation, activate your new virtual environment called ooi_realtime_plotting
 
 Open request_current_data.py or request_historic_data.py and modify the inputs. 
 
