@@ -2,16 +2,18 @@
 This toolbox is written in python 2 and contains scripts to stream data onto your local machine and plot in real time.
 
 
-#Installation
+## Installation using conda
 
     > git clone git@github.com:ooi-data-review/ooi_realtime_plotting.git
 
     > cd ooi_realtime_plotting
 
-    > pip install -r requirements.txt
+    > conda create -n ooi_realtime_plotting python=2 matplotlib requests futures
 
 
-#Use
+## Use
+
+Activate your new virtual environment called ooi_realtime_plotting
 
 Open request_current_data.py or request_historic_data.py and modify the inputs. 
 
@@ -30,6 +32,6 @@ The '&' will allow you to modify inputs in the .py file and fire up another plot
 
 * Optionally, you can specify to write the data to csv as it streams in from either script
 
-#Note:
+## Note:
 * When using request_historic_data.py, if there is no new historic data points within 3600 seconds from the last data point received, the script will not progress. For now, the increment can be increased in line 174 under functions/common.py to accomodate sparse datasets or to leap over expected gaps.
 
