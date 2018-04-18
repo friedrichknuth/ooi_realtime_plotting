@@ -20,7 +20,7 @@ unix_epoch = datetime.datetime(1970, 1, 1)
 ntp_ordinal = ntp_epoch.toordinal()
 ntp_delta = (unix_epoch - ntp_epoch).total_seconds()
 
-max_points = 10000
+max_points = 100000
 
 def create_output_dir(new_dir):
     # Check if dir exists.. if it doesn't... create it.
@@ -34,7 +34,8 @@ def create_output_dir(new_dir):
                 raise
 
 def prune_data(n, max_points=max_points, write_csv = False):
-    # print a warning if csv file begins to exceed msx_points
+    ## print a warning if csv file begins to exceed msx_points
+    # print('total points ', len(n))
     if write_csv == True:
         if len(n) >= max_points:
             print "WARNING - csv file beginning to exceed " + str(max_points) + ' points.'
@@ -42,6 +43,8 @@ def prune_data(n, max_points=max_points, write_csv = False):
     ## use this to prune data through decimation instead of cropping.
     # if len(n) >= max_points: 
     #     return n[::1000]
+    # else:
+    #     return n
     
     return n[-max_points:]
     
@@ -50,13 +53,16 @@ def prune_data(n, max_points=max_points, write_csv = False):
 def extract_keys(data, keys, min_time):
     rdict = {key: [] for key in keys}
     for record in data:
-        if record['time'] <= min_time:
-            # time = record['time']
-            # time = time.strftime("%Y-%m-%d %H:%M:%S")
-            # print 'No new data found since ' + str(time) + '. Sending new request.'
+        try:
+            if record['time'] <= min_time:
+                # time = record['time']
+                # time = time.strftime("%Y-%m-%d %H:%M:%S")
+                # print 'No new data found since ' + str(time) + '. Sending new request.'
+                continue
+            for key in keys:
+                rdict[key].append(record[key])
+        except:
             continue
-        for key in keys:
-            rdict[key].append(record[key])
     # print 'Found %d data points after filtering' % len(rdict['time'])
     return rdict
 
@@ -83,7 +89,7 @@ def requestHistoric(username, token, sub_site, platform, instrument, delivery_me
     params = {
         'beginDT': None,
         'endDT': None,
-        'limit': 1000,
+        'limit': 10000,
         'user': 'realtime',
     }
 
@@ -134,59 +140,62 @@ def requestHistoric(username, token, sub_site, platform, instrument, delivery_me
 
         # Request complete, if not 200, log error and try again
         response = data_future.result()
-        if response.status_code != 200:
+        if 'Query returned no results for primary stream' in response.text:
+            begin_time = begin_time + datetime.timedelta(seconds=1209600)
+            end_time = begin_time + datetime.timedelta(seconds=2628000)
+            print 'no data available between ', begin_time, end_time
+        elif response.status_code != 200:
             print 'Error fetching data', response.text
             plt.pause(1)
             continue
 
-        # Data is valid, extract the requested parameters for all data points
-        # not already received.
-        data = response.json()
-        data = extract_keys(data, ['time', parameter], min_time=last_time)
-        
+        elif response.status_code == 200:
+            # Data is valid, extract the requested parameters for all data points
+            # not already received.
+            data = response.json()
+            data = extract_keys(data, ['time', parameter], min_time=last_time)
+            
 
-        # write data to csv
-        if write_csv == True:
-            output.update(data)
-            for key, value in output.iteritems():
-                if key == 'time':
-                    x = [x for x in value]
-                if key == parameter:
-                    y = [y for y in value]
+            # write data to csv
+            if write_csv == True:
+                output.update(data)
+                for key, value in output.iteritems():
+                    if key == 'time':
+                        x = [x for x in value]
+                    if key == parameter:
+                        y = [y for y in value]
 
-            rows = zip(x,y)
-            with open(output_filename, 'a') as f:
-                writer = csv.writer(f)
-                for row in rows:
-                    writer.writerow(row)
+                rows = zip(x,y)
+                with open(output_filename, 'a') as f:
+                    writer = csv.writer(f)
+                    for row in rows:
+                        writer.writerow(row)
 
 
-        # It's possible to receive a response containing only already plotted data
-        # If so, try again.
-        if not data['time']:
+            # It's possible to receive a response containing only already plotted data
+            # If so, try again.
+            if not data['time']:
+                begin_time = begin_time + datetime.timedelta(seconds=1209600)
+                plt.pause(1)
+            else:
+                last_time = data['time'][-1]
+                begin_time = ntp_seconds_to_datetime(last_time)
+            end_time = begin_time + datetime.timedelta(seconds=2628000)
+
+            # Add this data to our existing dataset, prune if over our max points
+            time.extend((t / (24 * 3600) + ntp_ordinal for t in data['time']))
+            yvals.extend(data[parameter])
+            time = prune_data(time, write_csv = write_csv)
+            yvals = prune_data(yvals)
+
+            # reset our limits and plot the data
+            ax.lines[0].set_xdata(time)
+            ax.lines[0].set_ydata(yvals)
+            ax.relim()
+            ax.autoscale_view()
+
+            plt.tight_layout()
             plt.pause(1)
-            continue
-
-        # Grab the last time so that we can filter out any previously received data
-        # from the next request. Update begin_time to match.
-        last_time = data['time'][-1]
-        begin_time = ntp_seconds_to_datetime(last_time)
-        end_time = ntp_seconds_to_datetime(last_time) + datetime.timedelta(seconds=3600)
-
-        # Add this data to our existing dataset, prune if over our max points
-        time.extend((t / (24 * 3600) + ntp_ordinal for t in data['time']))
-        yvals.extend(data[parameter])
-        time = prune_data(time, write_csv = write_csv)
-        yvals = prune_data(yvals)
-
-        # reset our limits and plot the data
-        ax.lines[0].set_xdata(time)
-        ax.lines[0].set_ydata(yvals)
-        ax.relim()
-        ax.autoscale_view()
-
-        plt.tight_layout()
-        plt.pause(1)
 
 
 
